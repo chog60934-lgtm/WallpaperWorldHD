@@ -79,36 +79,10 @@ private val wallpaperThemes = listOf(
     "Cute Animals" to "cute cats dogs animals"
 )
 
-// Exactly 1,500 offline-generated youth-style wallpaper entries across 20 themes.
-private val wallpaperList = List(1500) { index ->
-    val theme = wallpaperThemes[index % wallpaperThemes.size]
-    val number = index + 1
-    Wallpaper(
-        title = "${theme.first} #$number",
-        category = theme.first,
-        image = "local:$number"
-    )
-}
-
-// A completely separate catalogue: exactly 500 dedicated live wallpapers.
-private val liveWallpaperList = List(500) { index ->
-    val theme = wallpaperThemes[index % wallpaperThemes.size]
-    val number = index + 1
-    Wallpaper(
-        title = "Live ${theme.first} #$number",
-        category = "LIVE • ${theme.first}",
-        image = "live:$number"
-    )
-}
-
-// Five additional premium live designs, separate from the 500-item collection.
-private val featuredLiveList = listOf(
-    Wallpaper("VIP Live • Pink Hearts", "VIP LIVE", "live:501"),
-    Wallpaper("VIP Live • Neon Gamer", "VIP LIVE", "live:502"),
-    Wallpaper("VIP Live • Galaxy Couple", "VIP LIVE", "live:503"),
-    Wallpaper("VIP Live • Kawaii Dream", "VIP LIVE", "live:504"),
-    Wallpaper("VIP Live • Midnight City", "VIP LIVE", "live:505")
-)
+// All wallpaper catalogues cleared at the user's request.
+private val wallpaperList = emptyList<Wallpaper>()
+private val liveWallpaperList = emptyList<Wallpaper>()
+private val featuredLiveList = emptyList<Wallpaper>()
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -261,18 +235,17 @@ private fun WallpaperWorldApp() {
 @Composable
 private fun HeroBanner(onClick: () -> Unit) {
     Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp).height(190.dp)
-        .clip(RoundedCornerShape(22.dp)).clickable(onClick = onClick)) {
-        Image(generatedWallpaper("local:4"), "Purple mountain night sky", Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-        Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(listOf(Color(0xDD09051B), Color.Transparent))))
-        Column(Modifier.align(Alignment.CenterStart).padding(20.dp)) {
-            Text("Beautiful", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
-            Text("Wallpapers", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
-            Text("in Your Hand", color = Color(0xFFE3D9FF))
-            Spacer(Modifier.height(12.dp))
-            Button(onClick = onClick, colors = ButtonDefaults.buttonColors(containerColor = purple)) { Text("Explore Now  →", color = Color.White) }
+        .clip(RoundedCornerShape(22.dp))
+        .background(Brush.linearGradient(listOf(Color(0xFF171827), Color(0xFF3920A8)))),
+        contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("Wallpaper collection cleared", color = Color.White,
+                style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text("No wallpapers have been added yet", color = Color.LightGray)
         }
     }
 }
+
 @Composable
 private fun WallpaperDetail(wall: Wallpaper, isFavorite: Boolean, onBack: () -> Unit,
     onFavorite: () -> Unit, onDownload: () -> Unit, onSet: () -> Unit, onLive: () -> Unit) {
