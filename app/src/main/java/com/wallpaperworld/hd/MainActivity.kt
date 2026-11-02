@@ -79,8 +79,19 @@ private val wallpaperThemes = listOf(
     "Cute Animals" to "cute cats dogs animals"
 )
 
-// All wallpaper catalogues cleared at the user's request.
-private val wallpaperList = emptyList<Wallpaper>()
+// Approved first batch: ten original local vector wallpapers.
+private val wallpaperList = listOf(
+    Wallpaper("Cute Teddy", "Cute Kawaii", "asset:1"),
+    Wallpaper("Neon Gamer", "Gaming", "asset:2"),
+    Wallpaper("Chibi Friends", "Anime Manga", "asset:3"),
+    Wallpaper("Butterfly Dream", "Butterfly", "asset:4"),
+    Wallpaper("Street Style", "Street Style", "asset:5"),
+    Wallpaper("Cute Kitty", "Cute Animals", "asset:6"),
+    Wallpaper("Couple Sunset", "Couple Love", "asset:7"),
+    Wallpaper("Galaxy Dream", "Galaxy Dream", "asset:8"),
+    Wallpaper("Supercar Night", "Luxury Cars", "asset:9"),
+    Wallpaper("Happy Cloud", "Soft Aesthetic", "asset:10")
+)
 private val liveWallpaperList = emptyList<Wallpaper>()
 private val featuredLiveList = emptyList<Wallpaper>()
 
@@ -278,7 +289,14 @@ private fun WallpaperDetail(wall: Wallpaper, isFavorite: Boolean, onBack: () -> 
 private val wallpaperBitmapCache = android.util.LruCache<Int, Bitmap>(24)
 private fun generatedWallpaper(key: String): androidx.compose.ui.graphics.ImageBitmap {
     val id = key.substringAfter(":").toIntOrNull() ?: 1
-    val bitmap = wallpaperBitmapCache.get(id) ?: makeWallpaperBitmap(id).also { wallpaperBitmapCache.put(id, it) }
+    val bitmap = wallpaperBitmapCache.get(id) ?: run {
+        val context = AppContext.context
+        val loaded = if (key.startsWith("asset:") && context != null) {
+            val resourceId = context.resources.getIdentifier("wallpaper_${id.toString().padStart(2, '0')}", "drawable", context.packageName)
+            if (resourceId != 0) BitmapFactory.decodeResource(context.resources, resourceId) else null
+        } else null
+        (loaded ?: makeWallpaperBitmap(id)).also { wallpaperBitmapCache.put(id, it) }
+    }
     return bitmap.asImageBitmap()
 }
 private fun makeWallpaperBitmap(id: Int): Bitmap {
