@@ -14,6 +14,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -38,7 +40,13 @@ import coil.compose.AsyncImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.net.URL
+import kotlin.random.Random
+import android.graphics.Canvas as AndroidCanvas
+import android.graphics.Paint as AndroidPaint
+import android.graphics.Path as AndroidPath
+import android.graphics.LinearGradient
+import android.graphics.Shader
+import android.graphics.Color as AndroidColor
 
 private val bg = Color(0xFF070810)
 private val card = Color(0xFF171827)
@@ -76,7 +84,7 @@ private val wallpaperList = List(1000) { index ->
     Wallpaper(
         title = "${theme.first} #$number",
         category = theme.first,
-        image = "https://loremflickr.com/900/1400/${theme.second.replace(' ', ',')}?lock=$number"
+        image = "local:$number"
     )
 }
 
@@ -180,7 +188,7 @@ private fun WallpaperWorldApp() {
                         horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(visible) { wall ->
                             Box(Modifier.fillMaxWidth().height(220.dp).clip(RoundedCornerShape(18.dp)).clickable { selected = wall }) {
-                                AsyncImage(wall.image, wall.title, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                                Image(generatedWallpaper(wall.image), wall.title, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
                                 Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xCC000000)))))
                                 Column(Modifier.align(Alignment.BottomStart).padding(11.dp)) {
                                     Text(wall.title, color = Color.White, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -223,8 +231,7 @@ private fun WallpaperWorldApp() {
 private fun HeroBanner(onClick: () -> Unit) {
     Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp).height(190.dp)
         .clip(RoundedCornerShape(22.dp)).clickable(onClick = onClick)) {
-        AsyncImage("https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200",
-            "Purple mountain night sky", Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+        Image(generatedWallpaper("local:4"), "Purple mountain night sky", Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
         Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(listOf(Color(0xDD09051B), Color.Transparent))))
         Column(Modifier.align(Alignment.CenterStart).padding(20.dp)) {
             Text("Beautiful", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
@@ -247,7 +254,7 @@ private fun WallpaperDetail(wall: Wallpaper, isFavorite: Boolean, onBack: () -> 
                     tint = if (isFavorite) Color(0xFFFF5B9A) else Color.White)
             }
         }
-        AsyncImage(wall.image, wall.title, Modifier.weight(1f).fillMaxWidth().clip(RoundedCornerShape(20.dp)), contentScale = ContentScale.Crop)
+        Image(generatedWallpaper(wall.image), wall.title, Modifier.weight(1f).fillMaxWidth().clip(RoundedCornerShape(20.dp)), contentScale = ContentScale.Crop)
         Spacer(Modifier.height(14.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Button(onClick = onDownload, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor = purple)) {
@@ -259,11 +266,61 @@ private fun WallpaperDetail(wall: Wallpaper, isFavorite: Boolean, onBack: () -> 
         }
     }
 }
-private suspend fun getBitmap(url: String): Bitmap? = withContext(Dispatchers.IO) {
-    try { URL(url).openStream().use { BitmapFactory.decodeStream(it) } } catch (_: Exception) { null }
+
+private fun generatedWallpaper(key: String): androidx.compose.ui.graphics.ImageBitmap {
+    val id = key.substringAfter(":").toIntOrNull() ?: 1
+    return makeWallpaperBitmap(id).asImageBitmap()
 }
-private suspend fun saveImage(url: String): String = withContext(Dispatchers.IO) {
-    val bitmap = getBitmap(url) ?: return@withContext "Image load failed. Check internet."
+private fun makeWallpaperBitmap(id: Int): Bitmap {
+    val width = 540; val height = 960
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val canvas = AndroidCanvas(bitmap)
+    val random = Random(id)
+    val hue = (id * 47) % 360
+    val top = AndroidColor.HSVToColor(floatArrayOf(hue.toFloat(), 0.72f, 0.34f))
+    val bottom = AndroidColor.HSVToColor(floatArrayOf(((hue + 55) % 360).toFloat(), 0.88f, 0.10f))
+    val paint = AndroidPaint(AndroidPaint.ANTI_ALIAS_FLAG)
+    paint.shader = LinearGradient(0f, 0f, width.toFloat(), height.toFloat(), top, bottom, Shader.TileMode.CLAMP)
+    canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint); paint.shader = null
+    repeat(150) {
+        val x = random.nextFloat() * width; val y = random.nextFloat() * height * 0.68f
+        paint.color = AndroidColor.argb(random.nextInt(80, 230), 235, 225, 255)
+        canvas.drawCircle(x, y, random.nextFloat() * 2.2f + 0.4f, paint)
+    }
+    val cx = random.nextInt(90, width - 90).toFloat()
+    val cy = random.nextInt(170, 430).toFloat()
+    val radius = random.nextInt(48, 112).toFloat()
+    paint.color = AndroidColor.HSVToColor(floatArrayOf(((hue + 35) % 360).toFloat(), 0.38f, 1f))
+    paint.setShadowLayer(38f, 0f, 0f, paint.color); canvas.drawCircle(cx, cy, radius, paint); paint.clearShadowLayer()
+    for (layer in 0..3) {
+        val path = AndroidPath()
+        val baseY = height * (0.58f + layer * 0.105f)
+        path.moveTo(0f, height.toFloat()); path.lineTo(0f, baseY)
+        var x = 0f
+        while (x <= width + 100) {
+            val peak = baseY - random.nextInt(35, 210).toFloat() * (1f - layer * 0.13f)
+            path.lineTo(x + random.nextInt(15, 95), peak)
+            x += random.nextInt(55, 125); path.lineTo(x, baseY + random.nextInt(-25, 30))
+        }
+        path.lineTo(width.toFloat(), height.toFloat()); path.close()
+        paint.color = AndroidColor.HSVToColor(floatArrayOf(((hue + layer * 19 + 300) % 360).toFloat(),
+            (0.42f + layer * 0.10f).coerceAtMost(0.9f), (0.28f - layer * 0.045f).coerceAtLeast(0.08f)))
+        canvas.drawPath(path, paint)
+    }
+    paint.style = AndroidPaint.Style.STROKE; paint.strokeWidth = 2.2f
+    paint.color = AndroidColor.argb(105, 220, 190, 255)
+    repeat(8) { i -> val y = height * 0.79f + i * 23f; canvas.drawLine(0f, y, width.toFloat(), y + random.nextInt(-14, 15), paint) }
+    paint.style = AndroidPaint.Style.FILL; paint.color = AndroidColor.argb(75, 255, 255, 255)
+    val band = AndroidPath(); band.moveTo(0f, height * 0.88f)
+    band.cubicTo(width * 0.3f, height * 0.78f, width * 0.65f, height * 0.98f, width.toFloat(), height * 0.84f)
+    band.lineTo(width.toFloat(), height.toFloat()); band.lineTo(0f, height.toFloat()); band.close(); canvas.drawPath(band, paint)
+    return bitmap
+}
+private suspend fun getBitmap(key: String): Bitmap? = withContext(Dispatchers.Default) {
+    try { makeWallpaperBitmap(key.substringAfter(":").toIntOrNull() ?: 1) } catch (_: Exception) { null }
+}
+private suspend fun saveImage(key: String): String = withContext(Dispatchers.IO) {
+    val bitmap = getBitmap(key) ?: return@withContext "Image generation failed"
     try {
         val ctx = AppContext.context ?: return@withContext "App context unavailable"
         val values = ContentValues().apply {
@@ -271,17 +328,15 @@ private suspend fun saveImage(url: String): String = withContext(Dispatchers.IO)
             put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
             if (Build.VERSION.SDK_INT >= 29) put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/WallpaperWorld")
         }
-        val uri = ctx.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-            ?: return@withContext "Could not save image"
+        val uri = ctx.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values) ?: return@withContext "Could not save image"
         ctx.contentResolver.openOutputStream(uri)?.use { bitmap.compress(Bitmap.CompressFormat.JPEG, 95, it) }
         "Saved to Pictures/WallpaperWorld"
     } catch (_: Exception) { "Save failed" }
 }
-private suspend fun setDeviceWallpaper(url: String): String = withContext(Dispatchers.IO) {
-    val bitmap = getBitmap(url) ?: return@withContext "Image load failed"
+private suspend fun setDeviceWallpaper(key: String): String = withContext(Dispatchers.IO) {
+    val bitmap = getBitmap(key) ?: return@withContext "Image generation failed"
     try {
         val ctx = AppContext.context ?: return@withContext "App context unavailable"
-        WallpaperManager.getInstance(ctx).setBitmap(bitmap)
-        "Wallpaper set successfully"
+        WallpaperManager.getInstance(ctx).setBitmap(bitmap); "Wallpaper set successfully"
     } catch (_: Exception) { "Could not set wallpaper" }
 }
