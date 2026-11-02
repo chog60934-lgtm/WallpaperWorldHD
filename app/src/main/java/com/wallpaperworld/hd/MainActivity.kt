@@ -175,9 +175,6 @@ private fun WallpaperWorldApp() {
                             }
                         }
                     }
-                    Text("ADVERTISEMENT", color = Color(0xFF77788A), style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.fillMaxWidth().background(card).padding(8.dp),
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                     NavigationBar(containerColor = Color(0xFF11121C)) {
                         listOf("Home", "Categories", "Favorites", "Downloads", "Profile").forEach { item ->
                             NavigationBarItem(selected = tab == item, onClick = {
