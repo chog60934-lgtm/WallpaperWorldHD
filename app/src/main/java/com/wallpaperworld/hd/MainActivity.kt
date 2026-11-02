@@ -480,8 +480,15 @@ private fun makeWallpaperBitmap(id: Int): Bitmap {
     }
     return bitmap
 }
-private suspend fun getBitmap(key: String): Bitmap? = withContext(Dispatchers.Default) {
-    try { makeWallpaperBitmap(key.substringAfter(":").toIntOrNull() ?: 1) } catch (_: Exception) { null }
+private suspend fun getBitmap(key: String): Bitmap? = withContext(Dispatchers.IO) {
+    try {
+        val id = key.substringAfter(":").toIntOrNull() ?: 1
+        val ctx = AppContext.context
+        if (key.startsWith("asset:") && ctx != null) {
+            val resourceId = ctx.resources.getIdentifier("wallpaper_${id.toString().padStart(2, '0')}", "drawable", ctx.packageName)
+            if (resourceId != 0) BitmapFactory.decodeResource(ctx.resources, resourceId) else null
+        } else makeWallpaperBitmap(id)
+    } catch (_: Exception) { null }
 }
 private suspend fun saveImage(key: String): String = withContext(Dispatchers.IO) {
     val bitmap = getBitmap(key) ?: return@withContext "Image generation failed"
