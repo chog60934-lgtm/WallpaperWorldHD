@@ -3,7 +3,6 @@ package com.wallpaperworld.hd
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.Rect
 import android.os.Handler
 import android.os.Looper
 import android.service.wallpaper.WallpaperService
@@ -120,7 +119,7 @@ class LiveWallpaperService : WallpaperService() {
             paint.color = Color.argb(45, 180, 210, 255)
             for (i in 0..5) {
                 val y = h * (0.86f + i * 0.025f)
-                c.drawOval(Rect(0, y.toInt(), w.toInt(), (y + 14f).toInt()), paint)
+                c.drawOval(0f, y, w, y + 14f, paint)
             }
             frame++
         }
