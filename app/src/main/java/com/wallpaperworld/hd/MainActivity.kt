@@ -77,8 +77,8 @@ private val wallpaperThemes = listOf(
     "Aesthetic" to "aesthetic dreamy"
 )
 
-// 1,000 themed wallpaper entries, loaded as images on demand.
-private val wallpaperList = List(1500) { index ->
+// Exactly 5,000 offline-generated wallpaper entries across 20 themes.
+private val wallpaperList = List(5000) { index ->
     val theme = wallpaperThemes[index % wallpaperThemes.size]
     val number = index + 1
     Wallpaper(
