@@ -3,6 +3,8 @@ package com.wallpaperworld.hd
 import android.app.WallpaperManager
 import android.content.ContentValues
 import android.content.Context
+import android.content.ComponentName
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
@@ -127,6 +129,13 @@ private fun WallpaperWorldApp() {
                     scope.launch { Toast.makeText(context, saveImage(selected!!.image), Toast.LENGTH_LONG).show() }
                 }, {
                     scope.launch { Toast.makeText(context, setDeviceWallpaper(selected!!.image), Toast.LENGTH_LONG).show() }
+                }, {
+                    val id = selected!!.image.substringAfter(":").toIntOrNull() ?: 1
+                    context.getSharedPreferences("wallpaper_world_preferences", Context.MODE_PRIVATE).edit().putInt("live_wallpaper_id", id).apply()
+                    val intent = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER).apply {
+                        putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, ComponentName(context, LiveWallpaperService::class.java))
+                    }
+                    try { context.startActivity(intent) } catch (_: Exception) { Toast.makeText(context, "Live Wallpaper preview unavailable", Toast.LENGTH_LONG).show() }
                 })
             } else {
                 Column(Modifier.fillMaxSize().statusBarsPadding()) {
@@ -244,7 +253,7 @@ private fun HeroBanner(onClick: () -> Unit) {
 }
 @Composable
 private fun WallpaperDetail(wall: Wallpaper, isFavorite: Boolean, onBack: () -> Unit,
-    onFavorite: () -> Unit, onDownload: () -> Unit, onSet: () -> Unit) {
+    onFavorite: () -> Unit, onDownload: () -> Unit, onSet: () -> Unit, onLive: () -> Unit) {
     Column(Modifier.fillMaxSize().statusBarsPadding().padding(12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, null, tint = Color.White) }
@@ -263,6 +272,10 @@ private fun WallpaperDetail(wall: Wallpaper, isFavorite: Boolean, onBack: () -> 
             OutlinedButton(onClick = onSet, modifier = Modifier.weight(1f)) {
                 Icon(Icons.Default.Wallpaper, null); Spacer(Modifier.width(6.dp)); Text("Set Wallpaper")
             }
+        }
+        Spacer(Modifier.height(8.dp))
+        Button(onClick = onLive, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF342052))) {
+            Icon(Icons.Default.PlayCircle, null); Spacer(Modifier.width(8.dp)); Text("Set as Live Wallpaper")
         }
     }
 }
