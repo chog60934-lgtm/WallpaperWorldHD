@@ -2,6 +2,7 @@ package com.wallpaperworld.hd
 
 import android.app.WallpaperManager
 import android.content.ContentValues
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
@@ -79,7 +80,11 @@ private fun WallpaperWorldApp() {
     var query by remember { mutableStateOf("") }
     var searchOpen by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf<Wallpaper?>(null) }
-    var favorites by remember { mutableStateOf(setOf<String>()) }
+    val preferences = remember(context) { context.getSharedPreferences("wallpaper_world_preferences", Context.MODE_PRIVATE) }
+    var favorites by remember { mutableStateOf(preferences.getStringSet("favorites", emptySet())?.toSet() ?: emptySet()) }
+    LaunchedEffect(favorites) {
+        preferences.edit().putStringSet("favorites", favorites.toSet()).apply()
+    }
     val visible = wallpaperList.filter { w ->
         (category == "All" || w.category == category) &&
         (tab != "Favorites" || w.image in favorites) &&
