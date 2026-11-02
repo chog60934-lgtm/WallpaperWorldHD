@@ -144,72 +144,58 @@ private fun WallpaperWorldApp() {
                 })
             } else {
                 Column(Modifier.fillMaxSize().statusBarsPadding()) {
-                    Row(Modifier.fillMaxWidth().padding(start = 18.dp, end = 14.dp, top = 12.dp, bottom = 10.dp),
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically) {
-                        Box(Modifier.size(54.dp).clip(RoundedCornerShape(16.dp))
+                        Box(Modifier.size(42.dp).clip(RoundedCornerShape(13.dp))
                             .background(Brush.linearGradient(listOf(purple, Color(0xFF3920A8)))), contentAlignment = Alignment.Center) {
-                            Icon(Icons.Default.Landscape, null, tint = Color.White, modifier = Modifier.size(32.dp))
+                            Icon(Icons.Default.Landscape, null, tint = Color.White, modifier = Modifier.size(26.dp))
                         }
-                        Spacer(Modifier.width(12.dp))
+                        Spacer(Modifier.width(10.dp))
                         Column(Modifier.weight(1f)) {
-                            Text("Wallpaper", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black)
-                            Row {
-                                Text("World ", fontWeight = FontWeight.Black, style = MaterialTheme.typography.titleLarge)
-                                Text("HD", color = purple, fontWeight = FontWeight.Black, style = MaterialTheme.typography.titleLarge)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("Wallpaper World ", fontWeight = FontWeight.Black, style = MaterialTheme.typography.titleMedium)
+                                Text("HD", color = purple, fontWeight = FontWeight.Black, style = MaterialTheme.typography.titleMedium)
                             }
-                            Text("EXPLORE  •  DOWNLOAD  •  SET", color = Color.LightGray, style = MaterialTheme.typography.labelSmall)
+                            Text("Choose your next wallpaper", color = Color.LightGray, style = MaterialTheme.typography.labelSmall)
                         }
-                        TextButton(onClick = { Toast.makeText(context, "VIP collection coming soon", Toast.LENGTH_SHORT).show() }) {
-                            Text("👑 VIP", color = Color(0xFFFFC342), fontWeight = FontWeight.Bold)
+                        IconButton(onClick = { searchOpen = !searchOpen }) {
+                            Icon(Icons.Default.Search, "Search wallpapers", tint = Color.White)
                         }
                     }
                     if (searchOpen) {
                         OutlinedTextField(value = query, onValueChange = { query = it },
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 4.dp),
                             placeholder = { Text("Search wallpapers...") }, singleLine = true,
-                            trailingIcon = { IconButton(onClick = { query = "" }) { Icon(Icons.Default.Close, null) } },
+                            trailingIcon = { IconButton(onClick = { query = ""; searchOpen = false }) { Icon(Icons.Default.Close, null) } },
                             colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = purple, unfocusedBorderColor = Color.DarkGray,
                                 focusedTextColor = Color.White, unfocusedTextColor = Color.White))
-                    } else {
-                        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp).clip(RoundedCornerShape(18.dp))
-                            .background(card).clickable { searchOpen = true }.padding(15.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Search, null, tint = Color.LightGray)
-                            Spacer(Modifier.width(12.dp)); Text("Search Wallpapers...", color = Color.Gray)
-                        }
                     }
-                    if (tab == "Home") {
-                        HeroBanner { selected = wallpaperList[4] }
-                        Text("CATEGORIES", color = Color.LightGray, fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(start = 18.dp, top = 12.dp, bottom = 8.dp))
-                        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 14.dp),
-                            horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                    if (tab == "Categories") {
+                        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 6.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             (listOf("All") + wallpaperThemes.map { it.first }).forEach { item ->
                                 FilterChip(selected = category == item, onClick = { category = item }, label = { Text(item) },
                                     colors = FilterChipDefaults.filterChipColors(selectedContainerColor = purple,
                                         selectedLabelColor = Color.White, labelColor = Color.LightGray))
                             }
                         }
-                    } else Text(if (tab == "Live") "LIVE WALLPAPERS • 500 EXCLUSIVE" else if (tab == "Live VIP") "SPECIAL LIVE • 5 EXCLUSIVE" else tab.uppercase(), color = Color.White, fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(18.dp))
-                    Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 10.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        Text(if (tab == "Favorites") "Your Favorites" else if (tab == "Live") "✨  Dedicated Live Collection" else if (tab == "Live VIP") "👑  Featured Live Collection" else "🔥  Trending Wallpapers",
-                            color = Color.White, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
-                        Text("${visible.size} items", color = lavender, style = MaterialTheme.typography.labelMedium)
+                    }
+                    if (tab == "Live" || tab == "Live VIP") {
+                        Text("No live wallpapers yet", color = Color.LightGray, modifier = Modifier.padding(16.dp))
                     }
                     LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.weight(1f),
-                        contentPadding = PaddingValues(start = 14.dp, end = 14.dp, bottom = 12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        contentPadding = PaddingValues(start = 10.dp, end = 10.dp, top = 6.dp, bottom = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(9.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
                         items(visible) { wall ->
-                            Box(Modifier.fillMaxWidth().height(220.dp).clip(RoundedCornerShape(18.dp)).clickable { selected = wall }) {
+                            Box(Modifier.fillMaxWidth().aspectRatio(0.68f).clip(RoundedCornerShape(16.dp)).clickable { selected = wall }) {
                                 Image(generatedWallpaper(wall.image), wall.title, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
                                 Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xCC000000)))))
-                                Column(Modifier.align(Alignment.BottomStart).padding(11.dp)) {
+                                Column(Modifier.align(Alignment.BottomStart).padding(10.dp)) {
                                     Text(wall.title, color = Color.White, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                     Text(wall.category.uppercase(), color = lavender, style = MaterialTheme.typography.labelSmall)
                                 }
                                 IconButton(onClick = { favorites = if (wall.image in favorites) favorites - wall.image else favorites + wall.image },
-                                    modifier = Modifier.align(Alignment.TopEnd).padding(4.dp).background(Color(0x88000000), RoundedCornerShape(50))) {
+                                    modifier = Modifier.align(Alignment.TopEnd).padding(3.dp).background(Color(0x88000000), RoundedCornerShape(50))) {
                                     Icon(if (wall.image in favorites) Icons.Default.Favorite else Icons.Default.FavoriteBorder, null,
                                         tint = if (wall.image in favorites) Color(0xFFFF5B9A) else Color.White)
                                 }
@@ -217,21 +203,14 @@ private fun WallpaperWorldApp() {
                         }
                     }
                     NavigationBar(containerColor = Color(0xFF11121C)) {
-                        listOf("Home", "Categories", "Live", "Live VIP", "Favorites", "Downloads", "Profile").forEach { item ->
+                        listOf("Home", "Categories", "Favorites").forEach { item ->
                             NavigationBarItem(selected = tab == item, onClick = {
                                 tab = item
-                                if (item == "Categories") category = "All"
-                                if (item == "Downloads" || item == "Profile") {
-                                    Toast.makeText(context, "$item section coming soon", Toast.LENGTH_SHORT).show(); tab = "Home"
-                                }
+                                if (item == "Home" || item == "Categories") category = "All"
                             }, icon = { Icon(when (item) {
                                 "Home" -> Icons.Default.Home
                                 "Categories" -> Icons.Default.GridView
-                                "Live" -> Icons.Default.PlayCircle
-                                "Live VIP" -> Icons.Default.Star
-                                "Favorites" -> Icons.Default.Favorite
-                                "Downloads" -> Icons.Default.Download
-                                else -> Icons.Default.Person
+                                else -> Icons.Default.Favorite
                             }, null) }, label = { Text(item, maxLines = 1) },
                                 colors = NavigationBarItemDefaults.colors(selectedIconColor = purple, selectedTextColor = purple,
                                     unselectedIconColor = Color.LightGray, unselectedTextColor = Color.LightGray,
@@ -243,20 +222,6 @@ private fun WallpaperWorldApp() {
         }
     }
 }
-@Composable
-private fun HeroBanner(onClick: () -> Unit) {
-    Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp).height(190.dp)
-        .clip(RoundedCornerShape(22.dp))
-        .background(Brush.linearGradient(listOf(Color(0xFF171827), Color(0xFF3920A8)))),
-        contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Wallpaper collection cleared", color = Color.White,
-                style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            Text("No wallpapers have been added yet", color = Color.LightGray)
-        }
-    }
-}
-
 @Composable
 private fun WallpaperDetail(wall: Wallpaper, isFavorite: Boolean, onBack: () -> Unit,
     onFavorite: () -> Unit, onDownload: () -> Unit, onSet: () -> Unit, onLive: () -> Unit) {
