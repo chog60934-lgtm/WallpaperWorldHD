@@ -73,7 +73,7 @@ class LiveWallpaperService : WallpaperService() {
             val w = c.width.toFloat()
             val h = c.height.toFloat()
             val id = getSharedPreferences("wallpaper_world_preferences", MODE_PRIVATE)
-                .getInt("live_wallpaper_id", 1).coerceIn(1, 500)
+                .getInt("live_wallpaper_id", 1).coerceIn(1, 505)
             val base = palette[(id - 1) % palette.size]
             val hsv = FloatArray(3)
             Color.colorToHSV(base, hsv)
