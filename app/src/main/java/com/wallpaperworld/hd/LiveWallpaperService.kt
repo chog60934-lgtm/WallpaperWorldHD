@@ -121,6 +121,86 @@ class LiveWallpaperService : WallpaperService() {
                 val y = h * (0.86f + i * 0.025f)
                 c.drawOval(0f, y, w, y + 14f, paint)
             }
+            // Each of the 500 IDs has its own deterministic motion pattern.
+            // Effects are rendered live on the wallpaper surface, not mixed into the
+            // regular 5,000 static-wallpaper catalogue.
+            when ((id - 1) % 8) {
+                0 -> { // drifting blossom petals
+                    repeat(34) { i ->
+                        val x = (random.nextFloat() * w + sin(frame * 0.025f + i * 1.7f) * 42f + w) % w
+                        val y = (random.nextFloat() * h + frame * (0.7f + i % 4 * 0.18f)) % h
+                        paint.color = Color.argb(175, 255, 130 + i % 90, 195)
+                        c.drawOval(x, y, x + 7f, y + 12f, paint)
+                    }
+                }
+                1 -> { // aurora ribbons
+                    paint.style = Paint.Style.STROKE
+                    repeat(7) { i ->
+                        paint.strokeWidth = 5f + i
+                        paint.color = Color.argb(35 + i * 9, 50, 220, 190 + i * 8)
+                        val p = android.graphics.Path()
+                        p.moveTo(0f, h * (0.2f + i * 0.045f))
+                        p.cubicTo(w * 0.25f, h * (0.05f + i * 0.04f) + sin(frame * 0.02f) * 30f,
+                            w * 0.7f, h * (0.42f - i * 0.025f), w, h * (0.18f + i * 0.04f))
+                        c.drawPath(p, paint)
+                    }
+                    paint.style = Paint.Style.FILL
+                }
+                2 -> { // falling meteor streaks
+                    repeat(12) { i ->
+                        val x = (random.nextFloat() * w + frame * (1.2f + i % 3)) % w
+                        val y = (random.nextFloat() * h + frame * 2.4f) % h
+                        paint.color = Color.argb(190, 130, 190, 255)
+                        paint.strokeWidth = 2.5f
+                        c.drawLine(x, y, x - 34f, y + 58f, paint)
+                    }
+                }
+                3 -> { // ocean bubbles
+                    repeat(28) { i ->
+                        val x = random.nextFloat() * w
+                        val y = (h - ((frame * (0.8f + i % 4 * 0.25f) + i * 61f) % h))
+                        paint.style = Paint.Style.STROKE
+                        paint.strokeWidth = 2f
+                        paint.color = Color.argb(105, 110, 220, 255)
+                        c.drawCircle(x, y, 3f + i % 7, paint)
+                    }
+                    paint.style = Paint.Style.FILL
+                }
+                4 -> { // neon city pulses
+                    repeat(18) { i ->
+                        val x = (i * w / 18f)
+                        val pulse = (sin(frame * 0.09f + i) * 0.5f + 0.5f)
+                        paint.color = Color.argb((70 + pulse * 150).toInt(), 35, 210, 255)
+                        c.drawRect(x, h * 0.72f - pulse * 55f, x + 3f, h * 0.72f, paint)
+                    }
+                }
+                5 -> { // firefly glow
+                    repeat(38) { i ->
+                        val x = (random.nextFloat() * w + sin(frame * 0.035f + i) * 25f + w) % w
+                        val y = (random.nextFloat() * h + sin(frame * 0.025f + i * 2) * 35f + h) % h
+                        paint.color = Color.argb((100 + (sin(frame * 0.08f + i) * 70).toInt()).coerceIn(20, 220), 255, 205, 90)
+                        c.drawCircle(x, y, 2f + (i % 3), paint)
+                    }
+                }
+                6 -> { // drifting snow
+                    repeat(55) { i ->
+                        val x = (random.nextFloat() * w + sin(frame * 0.018f + i) * 20f + w) % w
+                        val y = (random.nextFloat() * h + frame * (0.35f + i % 5 * 0.12f)) % h
+                        paint.color = Color.argb(190, 235, 245, 255)
+                        c.drawCircle(x, y, 1.5f + i % 3, paint)
+                    }
+                }
+                else -> { // moving galaxy spiral sparks
+                    repeat(42) { i ->
+                        val angle = i * 0.42f + frame * 0.012f
+                        val radius = (i * 5f + frame * 0.35f) % (w * 0.48f)
+                        val x = w * 0.5f + kotlin.math.cos(angle) * radius
+                        val y = h * 0.42f + kotlin.math.sin(angle) * radius
+                        paint.color = Color.argb(170, 160 + i % 90, 110, 255)
+                        c.drawCircle(x, y, 1.5f + i % 3, paint)
+                    }
+                }
+            }
             frame++
         }
     }
