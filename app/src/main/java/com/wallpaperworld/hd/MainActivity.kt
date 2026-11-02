@@ -79,7 +79,7 @@ private val wallpaperThemes = listOf(
     "Cute Animals" to "cute cats dogs animals"
 )
 
-// Exactly 5,000 offline-generated wallpaper entries across 20 themes.
+// Exactly 1,500 offline-generated youth-style wallpaper entries across 20 themes.
 private val wallpaperList = List(1500) { index ->
     val theme = wallpaperThemes[index % wallpaperThemes.size]
     val number = index + 1
@@ -436,6 +436,56 @@ private fun makeWallpaperBitmap(id: Int): Bitmap {
             if (scene == 0 || scene == 13 || scene == 19) 255 else 160,
             if (scene == 0 || scene == 13 || scene == 19) 145 else 190, 255)
         canvas.drawOval(x, y, x + random.nextInt(3, 9), y + random.nextInt(7, 17), paint)
+    }
+    // Youth-oriented decorative accents: kawaii faces, hearts, music and gaming motifs.
+    val accentColors = intArrayOf(0xFFFF79B8.toInt(), 0xFF8BE9FF.toInt(), 0xFFFFD166.toInt(), 0xFFB69CFF.toInt())
+    repeat(9) { i ->
+        val x = 45f + random.nextFloat() * (width - 90f)
+        val y = height * (0.22f + random.nextFloat() * 0.62f)
+        val r = 9f + random.nextFloat() * 18f
+        paint.color = accentColors[(id + i) % accentColors.size]
+        paint.alpha = 105 + random.nextInt(90)
+        when ((id + i) % 5) {
+            0 -> { // soft glowing bubble
+                canvas.drawCircle(x, y, r * 1.8f, paint)
+                paint.color = AndroidColor.WHITE
+                paint.alpha = 150
+                canvas.drawCircle(x - r * 0.3f, y - r * 0.35f, r * 0.22f, paint)
+            }
+            1 -> { // tiny heart
+                val heart = AndroidPath()
+                heart.moveTo(x, y + r)
+                heart.cubicTo(x - r * 2f, y - r * 0.2f, x - r, y - r * 1.5f, x, y - r * 0.55f)
+                heart.cubicTo(x + r, y - r * 1.5f, x + r * 2f, y - r * 0.2f, x, y + r)
+                canvas.drawPath(heart, paint)
+            }
+            2 -> { // sparkle
+                val sparkle = AndroidPath()
+                sparkle.moveTo(x, y - r * 1.7f); sparkle.lineTo(x + r * 0.35f, y - r * 0.35f)
+                sparkle.lineTo(x + r * 1.7f, y); sparkle.lineTo(x + r * 0.35f, y + r * 0.35f)
+                sparkle.lineTo(x, y + r * 1.7f); sparkle.lineTo(x - r * 0.35f, y + r * 0.35f)
+                sparkle.lineTo(x - r * 1.7f, y); sparkle.lineTo(x - r * 0.35f, y - r * 0.35f)
+                sparkle.close()
+                canvas.drawPath(sparkle, paint)
+            }
+            3 -> { // kawaii face
+                canvas.drawCircle(x, y, r, paint)
+                paint.color = 0xFF25213D.toInt(); paint.alpha = 210
+                canvas.drawCircle(x - r * 0.34f, y - r * 0.08f, r * 0.09f, paint)
+                canvas.drawCircle(x + r * 0.34f, y - r * 0.08f, r * 0.09f, paint)
+                paint.style = AndroidPaint.Style.STROKE; paint.strokeWidth = 2.5f
+                canvas.drawArc(x - r * 0.28f, y - r * 0.05f, x + r * 0.28f, y + r * 0.48f, 15f, 150f, false, paint)
+                paint.style = AndroidPaint.Style.FILL
+            }
+            else -> { // neon music / gamer ring
+                paint.style = AndroidPaint.Style.STROKE; paint.strokeWidth = 3f
+                canvas.drawCircle(x, y, r, paint)
+                canvas.drawCircle(x, y, r * 0.55f, paint)
+                paint.style = AndroidPaint.Style.FILL
+            }
+        }
+        paint.alpha = 255
+        paint.style = AndroidPaint.Style.FILL
     }
     return bitmap
 }
