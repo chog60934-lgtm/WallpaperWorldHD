@@ -78,7 +78,7 @@ private val wallpaperThemes = listOf(
 )
 
 // 1,000 themed wallpaper entries, loaded as images on demand.
-private val wallpaperList = List(1000) { index ->
+private val wallpaperList = List(1500) { index ->
     val theme = wallpaperThemes[index % wallpaperThemes.size]
     val number = index + 1
     Wallpaper(
@@ -267,9 +267,11 @@ private fun WallpaperDetail(wall: Wallpaper, isFavorite: Boolean, onBack: () -> 
     }
 }
 
+private val wallpaperBitmapCache = android.util.LruCache<Int, Bitmap>(24)
 private fun generatedWallpaper(key: String): androidx.compose.ui.graphics.ImageBitmap {
     val id = key.substringAfter(":").toIntOrNull() ?: 1
-    return makeWallpaperBitmap(id).asImageBitmap()
+    val bitmap = wallpaperBitmapCache.get(id) ?: makeWallpaperBitmap(id).also { wallpaperBitmapCache.put(id, it) }
+    return bitmap.asImageBitmap()
 }
 private fun makeWallpaperBitmap(id: Int): Bitmap {
     val width = 540; val height = 960
