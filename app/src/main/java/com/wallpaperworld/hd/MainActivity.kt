@@ -46,20 +46,39 @@ private val purple = Color(0xFFB12CFF)
 private val lavender = Color(0xFF9C83FF)
 private data class Wallpaper(val title: String, val category: String, val image: String)
 
-private val wallpaperList = listOf(
-    Wallpaper("Neon Anime", "Anime", "https://images.unsplash.com/photo-1578632767115-3516a212d2c5?w=900"),
-    Wallpaper("Pink Sky", "Aesthetic", "https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=900"),
-    Wallpaper("Purple Rose", "Love", "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=900"),
-    Wallpaper("Mountain Dream", "Nature", "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=900"),
-    Wallpaper("Moonlit Sea", "Aesthetic", "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=900"),
-    Wallpaper("Dark Night", "Dark", "https://images.unsplash.com/photo-1519608487953-e999c86e7455?w=900"),
-    Wallpaper("Golden Pagoda", "Myanmar", "https://images.unsplash.com/photo-1509233725247-49e657c54213?w=900"),
-    Wallpaper("Ocean Blue", "Nature", "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=900"),
-    Wallpaper("Purple Sky", "Aesthetic", "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=900"),
-    Wallpaper("Forest Path", "Nature", "https://images.unsplash.com/photo-1448375240586-882707db888b?w=900"),
-    Wallpaper("Red Sunset", "Love", "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=900"),
-    Wallpaper("Starry Peaks", "Dark", "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=900")
+private val wallpaperThemes = listOf(
+    "Nature" to "nature landscape",
+    "Anime" to "anime illustration",
+    "Sci-Fi" to "science fiction futuristic",
+    "Space" to "galaxy nebula planet",
+    "Cyberpunk" to "cyberpunk neon city",
+    "Fantasy" to "fantasy castle dragon",
+    "Abstract" to "abstract colorful art",
+    "Minimal" to "minimalist geometric",
+    "Cars" to "sports car supercar",
+    "Architecture" to "modern architecture",
+    "Animals" to "wild animals",
+    "Ocean" to "ocean underwater",
+    "Dark" to "dark moody art",
+    "Love" to "romantic flowers",
+    "Myanmar" to "Myanmar pagoda landscape",
+    "Robots" to "robot futuristic",
+    "Gaming" to "gaming setup RGB",
+    "Technology" to "technology digital art",
+    "Fantasy Art" to "surreal fantasy art",
+    "Aesthetic" to "aesthetic dreamy"
 )
+
+// 1,000 themed wallpaper entries, loaded as images on demand.
+private val wallpaperList = List(1000) { index ->
+    val theme = wallpaperThemes[index % wallpaperThemes.size]
+    val number = index + 1
+    Wallpaper(
+        title = "${theme.first} #$number",
+        category = theme.first,
+        image = "https://loremflickr.com/900/1400/${theme.second.replace(' ', ',')}?lock=$number"
+    )
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -142,7 +161,7 @@ private fun WallpaperWorldApp() {
                             style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(start = 18.dp, top = 12.dp, bottom = 8.dp))
                         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 14.dp),
                             horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-                            listOf("All", "Nature", "Anime", "Love", "Aesthetic", "Dark", "Myanmar").forEach { item ->
+                            (listOf("All") + wallpaperThemes.map { it.first }).forEach { item ->
                                 FilterChip(selected = category == item, onClick = { category = item }, label = { Text(item) },
                                     colors = FilterChipDefaults.filterChipColors(selectedContainerColor = purple,
                                         selectedLabelColor = Color.White, labelColor = Color.LightGray))
