@@ -57,30 +57,30 @@ private val lavender = Color(0xFF9C83FF)
 private data class Wallpaper(val title: String, val category: String, val image: String)
 
 private val wallpaperThemes = listOf(
-    "Nature" to "nature landscape",
-    "Anime" to "anime illustration",
-    "Sci-Fi" to "science fiction futuristic",
-    "Space" to "galaxy nebula planet",
-    "Cyberpunk" to "cyberpunk neon city",
-    "Fantasy" to "fantasy castle dragon",
-    "Abstract" to "abstract colorful art",
-    "Minimal" to "minimalist geometric",
-    "Cars" to "sports car supercar",
-    "Architecture" to "modern architecture",
-    "Animals" to "wild animals",
-    "Ocean" to "ocean underwater",
-    "Dark" to "dark moody art",
-    "Love" to "romantic flowers",
-    "Myanmar" to "Myanmar pagoda landscape",
-    "Robots" to "robot futuristic",
-    "Gaming" to "gaming setup RGB",
-    "Technology" to "technology digital art",
-    "Fantasy Art" to "surreal fantasy art",
-    "Aesthetic" to "aesthetic dreamy"
+    "Cute Kawaii" to "cute kawaii pastel characters",
+    "Girly Pink" to "pink girly aesthetic hearts",
+    "Cool Boy" to "cool boy dark street aesthetic",
+    "Anime Manga" to "anime manga inspired original art",
+    "Gaming" to "RGB gaming controller neon",
+    "Couple Love" to "cute couple romance illustration",
+    "Friendship" to "best friends cute illustration",
+    "Street Style" to "urban streetwear graffiti",
+    "Neon Cyber" to "neon cyberpunk city",
+    "Galaxy Dream" to "colorful galaxy planets",
+    "Soft Aesthetic" to "soft pastel aesthetic",
+    "Dark Mode" to "dark minimal cool art",
+    "Chibi" to "original chibi character art",
+    "Butterfly" to "butterflies flowers dreamy",
+    "Cloud Nine" to "dreamy clouds sunset",
+    "Music Vibe" to "music headphones sound waves",
+    "Skate Style" to "skateboard street culture",
+    "Luxury Cars" to "sports cars neon night",
+    "Fantasy World" to "fantasy castle magical",
+    "Cute Animals" to "cute cats dogs animals"
 )
 
 // Exactly 5,000 offline-generated wallpaper entries across 20 themes.
-private val wallpaperList = List(5000) { index ->
+private val wallpaperList = List(1500) { index ->
     val theme = wallpaperThemes[index % wallpaperThemes.size]
     val number = index + 1
     Wallpaper(
@@ -100,6 +100,15 @@ private val liveWallpaperList = List(500) { index ->
         image = "live:$number"
     )
 }
+
+// Five additional premium live designs, separate from the 500-item collection.
+private val featuredLiveList = listOf(
+    Wallpaper("VIP Live • Pink Hearts", "VIP LIVE", "live:501"),
+    Wallpaper("VIP Live • Neon Gamer", "VIP LIVE", "live:502"),
+    Wallpaper("VIP Live • Galaxy Couple", "VIP LIVE", "live:503"),
+    Wallpaper("VIP Live • Kawaii Dream", "VIP LIVE", "live:504"),
+    Wallpaper("VIP Live • Midnight City", "VIP LIVE", "live:505")
+)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -125,8 +134,8 @@ private fun WallpaperWorldApp() {
     LaunchedEffect(favorites) {
         preferences.edit().putStringSet("favorites", favorites.toSet()).apply()
     }
-    val visible = (if (tab == "Live") liveWallpaperList else wallpaperList).filter { w ->
-        (tab == "Live" || category == "All" || w.category == category) &&
+    val visible = (if (tab == "Live VIP") featuredLiveList else if (tab == "Live") liveWallpaperList else wallpaperList).filter { w ->
+        (tab == "Live" || tab == "Live VIP" || category == "All" || w.category == category) &&
         (tab != "Favorites" || w.image in favorites) &&
         (query.isBlank() || w.title.contains(query, true) || w.category.contains(query, true))
     }
@@ -195,11 +204,11 @@ private fun WallpaperWorldApp() {
                                         selectedLabelColor = Color.White, labelColor = Color.LightGray))
                             }
                         }
-                    } else Text(if (tab == "Live") "LIVE WALLPAPERS • 500 EXCLUSIVE" else tab.uppercase(), color = Color.White, fontWeight = FontWeight.Bold,
+                    } else Text(if (tab == "Live") "LIVE WALLPAPERS • 500 EXCLUSIVE" else if (tab == "Live VIP") "SPECIAL LIVE • 5 EXCLUSIVE" else tab.uppercase(), color = Color.White, fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(18.dp))
                     Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 10.dp),
                         horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        Text(if (tab == "Favorites") "Your Favorites" else if (tab == "Live") "✨  Dedicated Live Collection" else "🔥  Trending Wallpapers",
+                        Text(if (tab == "Favorites") "Your Favorites" else if (tab == "Live") "✨  Dedicated Live Collection" else if (tab == "Live VIP") "👑  Featured Live Collection" else "🔥  Trending Wallpapers",
                             color = Color.White, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                         Text("${visible.size} items", color = lavender, style = MaterialTheme.typography.labelMedium)
                     }
@@ -223,7 +232,7 @@ private fun WallpaperWorldApp() {
                         }
                     }
                     NavigationBar(containerColor = Color(0xFF11121C)) {
-                        listOf("Home", "Categories", "Live", "Favorites", "Downloads", "Profile").forEach { item ->
+                        listOf("Home", "Categories", "Live", "Live VIP", "Favorites", "Downloads", "Profile").forEach { item ->
                             NavigationBarItem(selected = tab == item, onClick = {
                                 tab = item
                                 if (item == "Categories") category = "All"
@@ -234,6 +243,7 @@ private fun WallpaperWorldApp() {
                                 "Home" -> Icons.Default.Home
                                 "Categories" -> Icons.Default.GridView
                                 "Live" -> Icons.Default.PlayCircle
+                                "Live VIP" -> Icons.Default.Star
                                 "Favorites" -> Icons.Default.Favorite
                                 "Downloads" -> Icons.Default.Download
                                 else -> Icons.Default.Person
