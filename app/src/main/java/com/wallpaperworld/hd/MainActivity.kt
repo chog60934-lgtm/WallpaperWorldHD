@@ -90,6 +90,17 @@ private val wallpaperList = List(5000) { index ->
     )
 }
 
+// A completely separate catalogue: exactly 500 dedicated live wallpapers.
+private val liveWallpaperList = List(500) { index ->
+    val theme = wallpaperThemes[index % wallpaperThemes.size]
+    val number = index + 1
+    Wallpaper(
+        title = "Live ${theme.first} #$number",
+        category = "LIVE • ${theme.first}",
+        image = "live:$number"
+    )
+}
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,8 +125,8 @@ private fun WallpaperWorldApp() {
     LaunchedEffect(favorites) {
         preferences.edit().putStringSet("favorites", favorites.toSet()).apply()
     }
-    val visible = wallpaperList.filter { w ->
-        (category == "All" || w.category == category) &&
+    val visible = (if (tab == "Live") liveWallpaperList else wallpaperList).filter { w ->
+        (tab == "Live" || category == "All" || w.category == category) &&
         (tab != "Favorites" || w.image in favorites) &&
         (query.isBlank() || w.title.contains(query, true) || w.category.contains(query, true))
     }
@@ -188,7 +199,7 @@ private fun WallpaperWorldApp() {
                         style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(18.dp))
                     Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 10.dp),
                         horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        Text(if (tab == "Favorites") "Your Favorites" else "🔥  Trending Wallpapers",
+                        Text(if (tab == "Favorites") "Your Favorites" else if (tab == "Live") "✨  Dedicated Live Collection" else "🔥  Trending Wallpapers",
                             color = Color.White, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                         Text("${visible.size} items", color = lavender, style = MaterialTheme.typography.labelMedium)
                     }
@@ -212,7 +223,7 @@ private fun WallpaperWorldApp() {
                         }
                     }
                     NavigationBar(containerColor = Color(0xFF11121C)) {
-                        listOf("Home", "Categories", "Favorites", "Downloads", "Profile").forEach { item ->
+                        listOf("Home", "Categories", "Live", "Favorites", "Downloads", "Profile").forEach { item ->
                             NavigationBarItem(selected = tab == item, onClick = {
                                 tab = item
                                 if (item == "Categories") category = "All"
