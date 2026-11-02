@@ -195,7 +195,7 @@ private fun WallpaperWorldApp() {
                                         selectedLabelColor = Color.White, labelColor = Color.LightGray))
                             }
                         }
-                    } else Text(tab.uppercase(), color = Color.White, fontWeight = FontWeight.Bold,
+                    } else Text(if (tab == "Live") "LIVE WALLPAPERS • 500 EXCLUSIVE" else tab.uppercase(), color = Color.White, fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(18.dp))
                     Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 10.dp),
                         horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -233,6 +233,7 @@ private fun WallpaperWorldApp() {
                             }, icon = { Icon(when (item) {
                                 "Home" -> Icons.Default.Home
                                 "Categories" -> Icons.Default.GridView
+                                "Live" -> Icons.Default.PlayCircle
                                 "Favorites" -> Icons.Default.Favorite
                                 "Downloads" -> Icons.Default.Download
                                 else -> Icons.Default.Person
