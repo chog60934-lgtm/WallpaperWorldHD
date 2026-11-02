@@ -287,48 +287,134 @@ private fun generatedWallpaper(key: String): androidx.compose.ui.graphics.ImageB
     return bitmap.asImageBitmap()
 }
 private fun makeWallpaperBitmap(id: Int): Bitmap {
-    val width = 540; val height = 960
+    val width = 540
+    val height = 960
     val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
     val canvas = AndroidCanvas(bitmap)
     val random = Random(id)
-    val hue = (id * 47) % 360
-    val top = AndroidColor.HSVToColor(floatArrayOf(hue.toFloat(), 0.72f, 0.34f))
-    val bottom = AndroidColor.HSVToColor(floatArrayOf(((hue + 55) % 360).toFloat(), 0.88f, 0.10f))
+    val scene = (id - 1).mod(20)
+    val hue = ((scene * 31 + id * 7) % 360).toFloat()
     val paint = AndroidPaint(AndroidPaint.ANTI_ALIAS_FLAG)
-    paint.shader = LinearGradient(0f, 0f, width.toFloat(), height.toFloat(), top, bottom, Shader.TileMode.CLAMP)
-    canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint); paint.shader = null
-    repeat(150) {
-        val x = random.nextFloat() * width; val y = random.nextFloat() * height * 0.68f
-        paint.color = AndroidColor.argb(random.nextInt(80, 230), 235, 225, 255)
-        canvas.drawCircle(x, y, random.nextFloat() * 2.2f + 0.4f, paint)
+    val palettes = arrayOf(
+        intArrayOf(0xFFFF9A9E.toInt(), 0xFF34205F.toInt()), intArrayOf(0xFF081B46.toInt(), 0xFF050817.toInt()),
+        intArrayOf(0xFF651B9A.toInt(), 0xFF080D2B.toInt()), intArrayOf(0xFF071D50.toInt(), 0xFF020817.toInt()),
+        intArrayOf(0xFF30104A.toInt(), 0xFF080817.toInt()), intArrayOf(0xFF9B70E8.toInt(), 0xFF14234C.toInt()),
+        intArrayOf(0xFFEE79B8.toInt(), 0xFF25134D.toInt()), intArrayOf(0xFF171A38.toInt(), 0xFF050711.toInt()),
+        intArrayOf(0xFF4B235F.toInt(), 0xFF100D24.toInt()), intArrayOf(0xFF5B9BD5.toInt(), 0xFF101B39.toInt()),
+        intArrayOf(0xFF153F52.toInt(), 0xFF06121E.toInt()), intArrayOf(0xFF087E9B.toInt(), 0xFF03152B.toInt()),
+        intArrayOf(0xFF151326.toInt(), 0xFF03040B.toInt()), intArrayOf(0xFFFF6B83.toInt(), 0xFF30133D.toInt()),
+        intArrayOf(0xFFFFB36B.toInt(), 0xFF302052.toInt()), intArrayOf(0xFF183A65.toInt(), 0xFF050B20.toInt()),
+        intArrayOf(0xFF25166D.toInt(), 0xFF050817.toInt()), intArrayOf(0xFF073B70.toInt(), 0xFF030817.toInt()),
+        intArrayOf(0xFF6B4A9C.toInt(), 0xFF10132C.toInt()), intArrayOf(0xFFEF9BCB.toInt(), 0xFF25204E.toInt())
+    )
+    val colors = palettes[scene]
+    paint.shader = LinearGradient(0f, 0f, width.toFloat(), height.toFloat(), colors[0], colors[1], Shader.TileMode.CLAMP)
+    canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+    paint.shader = null
+
+    // Deep sky, stars and glowing celestial body.
+    repeat(230) {
+        val x = random.nextFloat() * width
+        val y = random.nextFloat() * height * 0.72f
+        paint.color = AndroidColor.argb(random.nextInt(90, 235), 225, 225, 255)
+        canvas.drawCircle(x, y, random.nextFloat() * 2.0f + 0.35f, paint)
     }
-    val cx = random.nextInt(90, width - 90).toFloat()
-    val cy = random.nextInt(170, 430).toFloat()
-    val radius = random.nextInt(48, 112).toFloat()
-    paint.color = AndroidColor.HSVToColor(floatArrayOf(((hue + 35) % 360).toFloat(), 0.38f, 1f))
-    paint.setShadowLayer(38f, 0f, 0f, paint.color); canvas.drawCircle(cx, cy, radius, paint); paint.clearShadowLayer()
-    for (layer in 0..3) {
-        val path = AndroidPath()
-        val baseY = height * (0.58f + layer * 0.105f)
-        path.moveTo(0f, height.toFloat()); path.lineTo(0f, baseY)
-        var x = 0f
-        while (x <= width + 100) {
-            val peak = baseY - random.nextInt(35, 210).toFloat() * (1f - layer * 0.13f)
-            path.lineTo(x + random.nextInt(15, 95), peak)
-            x += random.nextInt(55, 125); path.lineTo(x, baseY + random.nextInt(-25, 30))
+    val moonX = if (scene % 3 == 0) width * 0.72f else width * (0.32f + random.nextFloat() * 0.38f)
+    val moonY = height * (0.16f + random.nextFloat() * 0.12f)
+    val moonR = 65f + random.nextInt(25, 65)
+    val glow = AndroidPaint(AndroidPaint.ANTI_ALIAS_FLAG)
+    glow.color = AndroidColor.argb(45, 180, 130, 255)
+    canvas.drawCircle(moonX, moonY, moonR * 1.8f, glow)
+    paint.color = if (scene == 0 || scene == 13 || scene == 14) 0xFFFFD6B0.toInt() else 0xFFE4E7FF.toInt()
+    canvas.drawCircle(moonX, moonY, moonR, paint)
+
+    // Aurora / nebula ribbons for space and night themes.
+    if (scene == 1 || scene == 3 || scene == 11 || scene == 16 || scene == 17 || scene == 18) {
+        paint.style = AndroidPaint.Style.STROKE
+        for (i in 0..7) {
+            paint.strokeWidth = 8f + i * 2f
+            paint.color = AndroidColor.argb(22 + i * 4, 70 + i * 15, 100 + i * 8, 255)
+            val path = AndroidPath()
+            path.moveTo(-40f, height * (0.25f + i * 0.025f))
+            path.cubicTo(width * 0.25f, height * (0.02f + i * 0.03f), width * 0.58f,
+                height * (0.45f - i * 0.02f), width + 40f, height * (0.18f + i * 0.035f))
+            canvas.drawPath(path, paint)
         }
-        path.lineTo(width.toFloat(), height.toFloat()); path.close()
-        paint.color = AndroidColor.HSVToColor(floatArrayOf(((hue + layer * 19 + 300) % 360).toFloat(),
-            (0.42f + layer * 0.10f).coerceAtMost(0.9f), (0.28f - layer * 0.045f).coerceAtLeast(0.08f)))
-        canvas.drawPath(path, paint)
+        paint.style = AndroidPaint.Style.FILL
     }
-    paint.style = AndroidPaint.Style.STROKE; paint.strokeWidth = 2.2f
-    paint.color = AndroidColor.argb(105, 220, 190, 255)
-    repeat(8) { i -> val y = height * 0.79f + i * 23f; canvas.drawLine(0f, y, width.toFloat(), y + random.nextInt(-14, 15), paint) }
-    paint.style = AndroidPaint.Style.FILL; paint.color = AndroidColor.argb(75, 255, 255, 255)
-    val band = AndroidPath(); band.moveTo(0f, height * 0.88f)
-    band.cubicTo(width * 0.3f, height * 0.78f, width * 0.65f, height * 0.98f, width.toFloat(), height * 0.84f)
-    band.lineTo(width.toFloat(), height.toFloat()); band.lineTo(0f, height.toFloat()); band.close(); canvas.drawPath(band, paint)
+
+    // Distant glowing city silhouettes for cyberpunk, architecture and technology.
+    if (scene == 2 || scene == 4 || scene == 9 || scene == 15 || scene == 16 || scene == 17) {
+        var x = 0f
+        while (x < width) {
+            val w = random.nextInt(24, 62).toFloat()
+            val h = random.nextInt(100, 360).toFloat()
+            paint.color = if (scene == 4 || scene == 16) 0xFF17133E.toInt() else 0xFF101D3A.toInt()
+            canvas.drawRect(x, height * 0.68f - h, x + w, height * 0.82f, paint)
+            paint.color = if (random.nextBoolean()) 0xFF25D9FF.toInt() else 0xFFFF4BCB.toInt()
+            for (wy in (height * 0.68f - h + 18).toInt()..(height * 0.78f).toInt() step 28) {
+                if (random.nextBoolean()) canvas.drawRect(x + 7, wy.toFloat(), x + 12, wy + 9f, paint)
+                if (random.nextBoolean()) canvas.drawRect(x + w - 15, wy.toFloat(), x + w - 10, wy + 9f, paint)
+            }
+            x += w - 3f
+        }
+        paint.color = 0xFF15142C.toInt()
+        canvas.drawRect(0f, height * 0.82f, width.toFloat(), height.toFloat(), paint)
+        paint.style = AndroidPaint.Style.STROKE
+        paint.strokeWidth = 3f
+        paint.color = 0x9957CFFF.toInt()
+        repeat(5) { i -> canvas.drawLine(0f, height * (0.84f + i * 0.035f), width.toFloat(), height * (0.84f + i * 0.035f), paint) }
+        paint.style = AndroidPaint.Style.FILL
+    } else {
+        // Layered mountain ranges, reflective lake and a cinematic horizon.
+        for (layer in 0..4) {
+            val path = AndroidPath()
+            val baseY = height * (0.59f + layer * 0.075f)
+            path.moveTo(0f, height.toFloat())
+            path.lineTo(0f, baseY)
+            var x = 0f
+            while (x < width + 90) {
+                val peak = baseY - random.nextInt(45, 220).toFloat() * (1f - layer * 0.12f)
+                path.lineTo(x + random.nextInt(25, 100), peak)
+                x += random.nextInt(45, 105)
+                path.lineTo(x, baseY + random.nextInt(-18, 24))
+            }
+            path.lineTo(width.toFloat(), height.toFloat())
+            path.close()
+            paint.color = AndroidColor.HSVToColor(floatArrayOf((hue + layer * 13f + 300f) % 360f,
+                (0.48f + layer * 0.07f).coerceAtMost(0.88f), (0.34f - layer * 0.045f).coerceAtLeast(0.09f)))
+            canvas.drawPath(path, paint)
+        }
+        paint.color = 0x665DA8FF
+        canvas.drawRect(0f, height * 0.79f, width.toFloat(), height.toFloat(), paint)
+        paint.color = 0x55FFFFFF
+        repeat(18) { i ->
+            val y = height * 0.81f + i * 9f
+            val half = random.nextInt(20, 170).toFloat()
+            canvas.drawLine(moonX - half, y, moonX + half, y, paint)
+        }
+        // Tiny tree silhouettes along the shore.
+        paint.color = 0xFF080D20.toInt()
+        repeat(26) {
+            val x = random.nextInt(width).toFloat()
+            val y = height * (0.69f + random.nextFloat() * 0.18f)
+            val h = random.nextInt(25, 90).toFloat()
+            canvas.drawRect(x - 2, y, x + 2, y + h, paint)
+            val p = AndroidPath()
+            p.moveTo(x, y - h * 0.55f); p.lineTo(x - h * 0.28f, y + 5); p.lineTo(x + h * 0.28f, y + 5); p.close()
+            canvas.drawPath(p, paint)
+        }
+    }
+
+    // Floating petals / light motes create depth and animate naturally in live mode.
+    repeat(if (scene == 0 || scene == 13 || scene == 19) 75 else 38) {
+        val x = random.nextFloat() * width
+        val y = random.nextFloat() * height
+        paint.color = AndroidColor.argb(random.nextInt(65, 170),
+            if (scene == 0 || scene == 13 || scene == 19) 255 else 160,
+            if (scene == 0 || scene == 13 || scene == 19) 145 else 190, 255)
+        canvas.drawOval(x, y, x + random.nextInt(3, 9), y + random.nextInt(7, 17), paint)
+    }
     return bitmap
 }
 private suspend fun getBitmap(key: String): Bitmap? = withContext(Dispatchers.Default) {
